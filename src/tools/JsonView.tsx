@@ -13,7 +13,7 @@ interface JsonTreeNodeProps {
   isLast?: boolean;
 }
 
-const JsonTreeNode: React.FC<JsonTreeNodeProps> = ({ label, value, isLast }) => {
+const JsonTreeNode: React.FC<JsonTreeNodeProps> = ({ label, value }) => {
   const [isExpanded, setIsExpanded] = useState(true);
 
   const toggleExpanded = () => setIsExpanded(!isExpanded);
