@@ -11,11 +11,13 @@ interface AnalysisResult {
   transformedUrl: string;
   params: { key: string; value: string }[];
   timestamp: string;
-  displayText: string; // New field for custom display text
+  displayText: string;
+  notes: string; // Add notes field
 }
 
 const NBUrlParser: React.FC = () => {
   const [inputUrl, setInputUrl] = useState('');
+  const [notes, setNotes] = useState(''); // State for notes
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [history, setHistory] = useState<AnalysisResult[]>([]);
 
@@ -61,6 +63,7 @@ const NBUrlParser: React.FC = () => {
         params,
         timestamp: new Date().toLocaleString(),
         displayText: displayText,
+        notes: notes, // Save notes
       };
 
       setAnalysisResult(result);
@@ -73,11 +76,12 @@ const NBUrlParser: React.FC = () => {
 
   const handleHistoryClick = (item: AnalysisResult) => {
     setInputUrl(item.originalUrl);
+    setNotes(item.notes); // Populate notes from history
     setAnalysisResult(item);
   };
 
   const handleDeleteOne = (e: React.MouseEvent, urlToDelete: string) => {
-    e.stopPropagation(); // Prevent triggering handleHistoryClick
+    e.stopPropagation();
     const newHistory = history.filter(h => h.originalUrl !== urlToDelete);
     setHistory(newHistory);
     localStorage.setItem('nbUrlHistory', JSON.stringify(newHistory));
@@ -89,6 +93,7 @@ const NBUrlParser: React.FC = () => {
       localStorage.removeItem('nbUrlHistory');
       setAnalysisResult(null);
       setInputUrl('');
+      setNotes(''); // Clear notes
     }
   };
 
@@ -99,6 +104,10 @@ const NBUrlParser: React.FC = () => {
           <Form.Label>請輸入網址</Form.Label>
           <Form.Control as="textarea" rows={5} value={inputUrl} onChange={(e) => setInputUrl(e.target.value)} placeholder="貼上 NB 相關網址..." />
         </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>備註</Form.Label>
+          <Form.Control type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="請輸入備註..." />
+        </Form.Group>
         <Button onClick={handleAnalyze}>分析網址</Button>
 
         {analysisResult && (
@@ -108,6 +117,13 @@ const NBUrlParser: React.FC = () => {
               <a href={analysisResult.transformedUrl} target="_blank" rel="noopener noreferrer">{analysisResult.transformedUrl}</a>
             </Alert>
             
+            {analysisResult.notes && (
+              <div className="mt-3">
+                <h5>備註</h5>
+                <p>{analysisResult.notes}</p>
+              </div>
+            )}
+
             <h5 className="mt-4">參數分析</h5>
             <Table striped bordered hover responsive size="sm">
               <thead>
@@ -141,6 +157,7 @@ const NBUrlParser: React.FC = () => {
               <ListGroup.Item key={index} action className="d-flex justify-content-between align-items-center" onClick={() => handleHistoryClick(item)}>
                 <div className="me-auto">
                   <div className="fw-bold">{item.displayText}</div>
+                  {item.notes && <div className="text-muted"><small>{item.notes}</small></div>}
                   <small className="text-muted">{item.timestamp}</small>
                 </div>
                 <Button variant="light" size="sm" onClick={(e) => handleDeleteOne(e, item.originalUrl)}>

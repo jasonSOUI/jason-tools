@@ -9,12 +9,14 @@ interface GenerationResult {
   baseName: string;
   generatedNames: string[];
   timestamp: string;
+  notes: string;
 }
 
 const SUFFIXES = ['_NB006', '_NB007', '_NB011', '_NB015', '_AFI009', '_AFI010'];
 
 const ScanCaseGenerator: React.FC = () => {
   const [baseName, setBaseName] = useState('');
+  const [notes, setNotes] = useState('');
   const [generationResult, setGenerationResult] = useState<GenerationResult | null>(null);
   const [history, setHistory] = useState<GenerationResult[]>([]);
   const [copyAllText, setCopyAllText] = useState('全部複製');
@@ -47,6 +49,7 @@ const ScanCaseGenerator: React.FC = () => {
       baseName,
       generatedNames,
       timestamp: new Date().toLocaleString(),
+      notes: notes,
     };
     setGenerationResult(result);
     updateHistory(result);
@@ -54,6 +57,7 @@ const ScanCaseGenerator: React.FC = () => {
 
   const handleHistoryClick = (item: GenerationResult) => {
     setBaseName(item.baseName);
+    setNotes(item.notes);
     setGenerationResult(item);
   };
 
@@ -70,6 +74,7 @@ const ScanCaseGenerator: React.FC = () => {
       localStorage.removeItem('scanCaseHistory');
       setGenerationResult(null);
       setBaseName('');
+      setNotes('');
     }
   };
 
@@ -93,6 +98,10 @@ const ScanCaseGenerator: React.FC = () => {
           <Form.Label>請輸入案件名稱</Form.Label>
           <Form.Control type="text" value={baseName} onChange={(e) => setBaseName(e.target.value)} placeholder="貼上案件名稱..." />
         </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>備註</Form.Label>
+          <Form.Control type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="請輸入備註..." />
+        </Form.Group>
         <Button onClick={handleGenerate}>產生列表</Button>
 
         {generationResult && (
@@ -101,6 +110,12 @@ const ScanCaseGenerator: React.FC = () => {
               <h5 className="mb-0">產生結果</h5>
               <Button variant="success" size="sm" onClick={handleCopyAll}>{copyAllText}</Button>
             </div>
+            {generationResult.notes && (
+              <div className="mb-3">
+                <h5>備註</h5>
+                <p>{generationResult.notes}</p>
+              </div>
+            )}
             <Table striped bordered hover responsive size="sm">
               <thead>
                 <tr>
@@ -133,6 +148,7 @@ const ScanCaseGenerator: React.FC = () => {
               <ListGroup.Item key={index} action className="d-flex justify-content-between align-items-center" onClick={() => handleHistoryClick(item)}>
                 <div className="me-auto">
                   <div className="fw-bold">{item.baseName}</div>
+                  {item.notes && <div className="text-muted"><small>{item.notes}</small></div>}
                   <small className="text-muted">{item.timestamp}</small>
                 </div>
                 <Button variant="light" size="sm" onClick={(e) => handleDeleteOne(e, item.baseName)}>
