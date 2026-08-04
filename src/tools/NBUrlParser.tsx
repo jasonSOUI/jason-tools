@@ -33,8 +33,10 @@ const NBUrlParser: React.FC = () => {
     }
   }, []);
 
+  const MAX_HISTORY_ITEMS = 50;
+
   const updateHistory = (newResult: AnalysisResult) => {
-    const newHistory = [newResult, ...history.filter(h => h.originalUrl !== newResult.originalUrl)].slice(0, 10);
+    const newHistory = [newResult, ...history.filter(h => h.originalUrl !== newResult.originalUrl)].slice(0, MAX_HISTORY_ITEMS);
     setHistory(newHistory);
     localStorage.setItem('nbUrlHistory', JSON.stringify(newHistory));
   };

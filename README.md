@@ -66,10 +66,13 @@
 |   `-- ThemeContext.tsx       // 主題管理 Context
 |-- tools                      // 各個小工具元件
 |   |-- IdTool.tsx             // 身分證驗證與產生器 (整合)
-|   |-- NBUrlParser.tsx        // NB URL 分析工具
-|   |-- ScanCaseGenerator.tsx  // 掃描案件產生器
+|   |-- NBUrlParser.tsx        // NB URL 分析工具 (最高儲存 50 筆)
+|   |-- ScanCaseGenerator.tsx  // 掃描案件產生器 (最高儲存 50 筆)
 |   |-- InsuranceAgeCalculator.tsx // 保險年齡計算
 |   |-- YearConverter.tsx      // 西元與民國年轉換
+|   |-- JsonView.tsx           // JSON 檢視與驗證工具
+|   |-- FileSizeComparer.tsx   // 檔案大小比對工具
+|   |-- DataBackup.tsx         // 資料備份與搬移工具 (JSON 匯出與匯入)
 |   `-- Welcome.tsx            // 預設歡迎頁面
 |
 |-- App.tsx                    // 主應用程式，負責路由與整體佈局

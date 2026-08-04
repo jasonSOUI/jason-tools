@@ -33,8 +33,10 @@ const ScanCaseGenerator: React.FC = () => {
     }
   }, []);
 
+  const MAX_HISTORY_ITEMS = 50;
+
   const updateHistory = (newResult: GenerationResult) => {
-    const newHistory = [newResult, ...history.filter(h => h.baseName !== newResult.baseName)].slice(0, 10);
+    const newHistory = [newResult, ...history.filter(h => h.baseName !== newResult.baseName)].slice(0, MAX_HISTORY_ITEMS);
     setHistory(newHistory);
     localStorage.setItem('scanCaseHistory', JSON.stringify(newHistory));
   };

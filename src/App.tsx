@@ -11,11 +11,12 @@ import InsuranceAgeCalculator from './tools/InsuranceAgeCalculator';
 import YearConverter from './tools/YearConverter';
 import JsonView from './tools/JsonView';
 import FileSizeComparer from './tools/FileSizeComparer'; // Import the new tool
+import DataBackup from './tools/DataBackup'; // Import data backup tool
 import { useTheme } from './contexts/ThemeContext';
 import './index.css';
 
 // Import icons
-import { FaHome, FaIdCard, FaSun, FaMoon, FaLink, FaBarcode, FaUserClock, FaCalendarAlt, FaCode, FaExchangeAlt } from 'react-icons/fa'; // Add new icon
+import { FaHome, FaIdCard, FaSun, FaMoon, FaLink, FaBarcode, FaUserClock, FaCalendarAlt, FaCode, FaExchangeAlt, FaDatabase } from 'react-icons/fa'; // Add new icon
 
 const toolRoutes = [
   { path: '/', name: '歡迎', component: Welcome, icon: FaHome },
@@ -25,7 +26,8 @@ const toolRoutes = [
   { path: '/insurance-age-calculator', name: '保險年齡計算', component: InsuranceAgeCalculator, icon: FaUserClock },
   { path: '/year-converter', name: '西元與民國年轉換', component: YearConverter, icon: FaCalendarAlt },
   { path: '/json-view', name: 'JSON View', component: JsonView, icon: FaCode },
-  { path: '/file-size-comparer', name: '檔案大小比對', component: FileSizeComparer, icon: FaExchangeAlt }, // Add new route
+  { path: '/file-size-comparer', name: '檔案大小比對', component: FileSizeComparer, icon: FaExchangeAlt },
+  { path: '/data-backup', name: '資料備份與搬移', component: DataBackup, icon: FaDatabase },
 ];
 
 const PageHeader = () => {
