@@ -167,8 +167,8 @@ const CaseRecord: React.FC = () => {
                   <th style={{ width: '13%' }}>受理號碼</th>
                   <th style={{ width: '13%' }}>目前狀態</th>
                   <th style={{ width: '24%' }}>連結 (原本 / 本機)</th>
-                  <th style={{ width: '15%' }}>建立時間</th>
                   <th style={{ width: '23%' }}>備註 (點擊可修改)</th>
+                  <th style={{ width: '15%' }}>建立時間</th>
                   <th style={{ width: '12%', textAlign: 'center' }}>操作</th>
                 </tr>
               </thead>
@@ -219,11 +219,6 @@ const CaseRecord: React.FC = () => {
                       </div>
                     </td>
 
-                    {/* 建立時間 */}
-                    <td>
-                      <small className="text-muted">{record.createdAt}</small>
-                    </td>
-
                     {/* 備註 (可修改) */}
                     <td>
                       {editingId === record.id ? (
@@ -261,6 +256,11 @@ const CaseRecord: React.FC = () => {
                           )}
                         </div>
                       )}
+                    </td>
+
+                    {/* 建立時間 */}
+                    <td>
+                      <small className="text-muted">{record.createdAt}</small>
                     </td>
 
                     {/* 操作 */}
