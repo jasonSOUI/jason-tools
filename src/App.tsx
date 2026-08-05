@@ -11,17 +11,19 @@ import InsuranceAgeCalculator from './tools/InsuranceAgeCalculator';
 import YearConverter from './tools/YearConverter';
 import JsonView from './tools/JsonView';
 import FileSizeComparer from './tools/FileSizeComparer'; // Import the new tool
+import CaseRecord from './tools/CaseRecord';
 import DataBackup from './tools/DataBackup'; // Import data backup tool
 import { useTheme } from './contexts/ThemeContext';
 import './index.css';
 
 // Import icons
-import { FaHome, FaIdCard, FaSun, FaMoon, FaLink, FaBarcode, FaUserClock, FaCalendarAlt, FaCode, FaExchangeAlt, FaDatabase } from 'react-icons/fa'; // Add new icon
+import { FaHome, FaIdCard, FaSun, FaMoon, FaLink, FaBarcode, FaUserClock, FaCalendarAlt, FaCode, FaExchangeAlt, FaDatabase, FaBookmark } from 'react-icons/fa'; // Add new icon
 
 const toolRoutes = [
   { path: '/', name: '歡迎', component: Welcome, icon: FaHome },
   { path: '/id-tool', name: '身分證工具', component: IdTool, icon: FaIdCard },
   { path: '/nb-url-parser', name: 'NB URL 分析', component: NBUrlParser, icon: FaLink },
+  { path: '/case-record', name: '案件紀錄', component: CaseRecord, icon: FaBookmark },
   { path: '/scan-case-generator', name: '掃描案件產生器', component: ScanCaseGenerator, icon: FaBarcode },
   { path: '/insurance-age-calculator', name: '保險年齡計算', component: InsuranceAgeCalculator, icon: FaUserClock },
   { path: '/year-converter', name: '西元與民國年轉換', component: YearConverter, icon: FaCalendarAlt },
@@ -34,8 +36,11 @@ const PageHeader = () => {
   const location = useLocation();
   const currentRoute = toolRoutes.find(route => route.path === location.pathname);
   const title = currentRoute ? currentRoute.name : '工具';
+  const Icon = currentRoute ? currentRoute.icon : FaHome;
   return (
-    <Card.Header as="h5">{title}</Card.Header>
+    <Card.Header as="h5" className="d-flex align-items-center">
+      <Icon className="me-2 text-primary" /> {title}
+    </Card.Header>
   );
 };
 
@@ -43,9 +48,13 @@ const ThemeToggler = () => {
   const { theme, toggleTheme } = useTheme();
   return (
     <div className="mt-auto p-3 text-center">
-      <Button variant="outline-secondary" onClick={toggleTheme}>
-        {theme === 'light' ? <FaMoon /> : <FaSun />} 
-        <span className="ms-2">{theme === 'light' ? '深色' : '淺色'}模式</span>
+      <Button 
+        variant={theme === 'light' ? 'outline-dark' : 'outline-light'} 
+        className="w-100 d-flex align-items-center justify-content-center py-2"
+        onClick={toggleTheme}
+      >
+        {theme === 'light' ? <FaMoon className="me-2" /> : <FaSun className="text-warning me-2" />} 
+        <span>{theme === 'light' ? '切換深色模式' : '切換淺色模式'}</span>
       </Button>
     </div>
   );
@@ -53,11 +62,13 @@ const ThemeToggler = () => {
 
 function App() {
   return (
-    <Router>
+    <Router basename={import.meta.env.BASE_URL}>
       <div className="d-flex" style={{ minHeight: '100vh' }}>
         <div id="sidebar-wrapper" className="d-flex flex-column">
           <div>
-            <div className="sidebar-heading">JASON'S TOOLS</div>
+            <div className="sidebar-heading">
+              <span>JASON'S TOOLS</span>
+            </div>
             <Nav className="flex-column">
               {toolRoutes.map(route => (
                 <Nav.Link key={route.path} as={NavLink} to={route.path} end>

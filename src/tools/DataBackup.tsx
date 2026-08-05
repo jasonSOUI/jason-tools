@@ -207,6 +207,16 @@ const DataBackup: React.FC = () => {
                   }
                   return !item?.baseName;
                 }).slice(0, MAX_ITEMS);
+              } else if (key === 'savedCaseRecords') {
+                const combined = [...newVal, ...oldVal];
+                const seen = new Set<string>();
+                merged = combined.filter((item) => {
+                  if (item?.originalUrl && !seen.has(item.originalUrl)) {
+                    seen.add(item.originalUrl);
+                    return true;
+                  }
+                  return !item?.originalUrl;
+                });
               } else {
                 merged = [...newVal, ...oldVal].slice(0, MAX_ITEMS);
               }
@@ -280,6 +290,12 @@ const DataBackup: React.FC = () => {
                     <strong>NB URL 分析歷史:</strong>{' '}
                     <Badge bg="info" text="dark">
                       {getItemCount(JSON.parse(localStorage.getItem('nbUrlHistory') || '[]'))}
+                    </Badge>
+                  </li>
+                  <li className="mt-1">
+                    <strong>案件紀錄:</strong>{' '}
+                    <Badge bg="success">
+                      {getItemCount(JSON.parse(localStorage.getItem('savedCaseRecords') || '[]'))}
                     </Badge>
                   </li>
                   <li className="mt-1">

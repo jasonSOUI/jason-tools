@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Alert from 'react-bootstrap/Alert';
-import { FaTrash } from 'react-icons/fa';
+import { FaTrash, FaPlus, FaBookmark } from 'react-icons/fa';
 
 interface AnalysisResult {
   originalUrl: string;
@@ -12,6 +12,7 @@ interface AnalysisResult {
   params: { key: string; value: string }[];
   timestamp: string;
   displayText: string;
+  nodeName?: string;
   notes: string; // Add notes field
 }
 
@@ -20,6 +21,7 @@ const NBUrlParser: React.FC = () => {
   const [notes, setNotes] = useState(''); // State for notes
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [history, setHistory] = useState<AnalysisResult[]>([]);
+  const [savedUrls, setSavedUrls] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     try {
@@ -30,6 +32,16 @@ const NBUrlParser: React.FC = () => {
     } catch (error) {
       console.error("Failed to parse history from localStorage", error);
       localStorage.removeItem('nbUrlHistory');
+    }
+
+    try {
+      const storedSaved = localStorage.getItem('savedCaseRecords');
+      if (storedSaved) {
+        const records = JSON.parse(storedSaved);
+        setSavedUrls(new Set(records.map((r: any) => r.originalUrl)));
+      }
+    } catch (error) {
+      console.error("Failed to load savedCaseRecords", error);
     }
   }, []);
 
@@ -56,8 +68,11 @@ const NBUrlParser: React.FC = () => {
         params.push({ key, value });
       });
 
-      const applNumParam = params.find(p => p.key === 'applNum');
+      const applNumParam = params.find(p => p.key.toLowerCase() === 'applnum');
       const displayText = applNumParam && applNumParam.value ? applNumParam.value : '新案件';
+
+      const nodeNameParam = params.find(p => p.key.toLowerCase() === 'nodename');
+      const nodeName = nodeNameParam && nodeNameParam.value ? nodeNameParam.value : '';
 
       const result: AnalysisResult = {
         originalUrl: inputUrl,
@@ -65,6 +80,7 @@ const NBUrlParser: React.FC = () => {
         params,
         timestamp: new Date().toLocaleString(),
         displayText: displayText,
+        nodeName: nodeName,
         notes: notes, // Save notes
       };
 
@@ -80,6 +96,40 @@ const NBUrlParser: React.FC = () => {
     setInputUrl(item.originalUrl);
     setNotes(item.notes); // Populate notes from history
     setAnalysisResult(item);
+  };
+
+  const handleSaveToCaseRecord = (e: React.MouseEvent, item: AnalysisResult) => {
+    e.stopPropagation();
+    try {
+      const stored = localStorage.getItem('savedCaseRecords');
+      let records: any[] = stored ? JSON.parse(stored) : [];
+      
+      const displayNodeName = item.nodeName || item.params?.find(p => p.key.toLowerCase() === 'nodename')?.value || '';
+      const exists = records.some(r => r.originalUrl === item.originalUrl);
+
+      if (exists) {
+        alert(`案件號碼 [${item.displayText}] 已在案件紀錄中！`);
+        return;
+      }
+
+      const newRecord = {
+        id: Date.now().toString(),
+        applNum: item.displayText,
+        nodeName: displayNodeName,
+        originalUrl: item.originalUrl,
+        transformedUrl: item.transformedUrl,
+        createdAt: new Date().toLocaleString(),
+        notes: item.notes || ''
+      };
+
+      records = [newRecord, ...records];
+      localStorage.setItem('savedCaseRecords', JSON.stringify(records));
+      setSavedUrls(prev => new Set(prev).add(item.originalUrl));
+      alert(`已成功將案件 [${item.displayText}] 加入案件紀錄！`);
+    } catch (err) {
+      console.error("Failed to save case record", err);
+      alert('寫入案件紀錄失敗');
+    }
   };
 
   const handleDeleteOne = (e: React.MouseEvent, urlToDelete: string) => {
@@ -155,18 +205,33 @@ const NBUrlParser: React.FC = () => {
         </div>
         {history.length > 0 ? (
           <ListGroup>
-            {history.map((item, index) => (
-              <ListGroup.Item key={index} action className="d-flex justify-content-between align-items-center" onClick={() => handleHistoryClick(item)}>
-                <div className="me-auto">
-                  <div className="fw-bold">{item.displayText}</div>
-                  {item.notes && <div className="text-muted"><small>{item.notes}</small></div>}
-                  <small className="text-muted">{item.timestamp}</small>
-                </div>
-                <Button variant="light" size="sm" onClick={(e) => handleDeleteOne(e, item.originalUrl)}>
-                  <FaTrash />
-                </Button>
-              </ListGroup.Item>
-            ))}
+            {history.map((item, index) => {
+              const displayNodeName = item.nodeName || item.params?.find(p => p.key.toLowerCase() === 'nodename')?.value;
+              const isSaved = savedUrls.has(item.originalUrl);
+              return (
+                <ListGroup.Item key={index} action className="d-flex justify-content-between align-items-center" onClick={() => handleHistoryClick(item)}>
+                  <div className="me-auto">
+                    <div className="fw-bold">{item.displayText}</div>
+                    {displayNodeName && <div className="text-primary small fw-medium">{displayNodeName}</div>}
+                    {item.notes && <div className="text-muted"><small>{item.notes}</small></div>}
+                    <small className="text-muted">{item.timestamp}</small>
+                  </div>
+                  <div className="d-flex gap-1 ms-2">
+                    <Button
+                      variant={isSaved ? "success" : "outline-primary"}
+                      size="sm"
+                      onClick={(e) => handleSaveToCaseRecord(e, item)}
+                      title={isSaved ? "已在案件紀錄中" : "加到案件紀錄"}
+                    >
+                      {isSaved ? <FaBookmark /> : <FaPlus />}
+                    </Button>
+                    <Button variant="light" size="sm" onClick={(e) => handleDeleteOne(e, item.originalUrl)} title="刪除紀錄">
+                      <FaTrash />
+                    </Button>
+                  </div>
+                </ListGroup.Item>
+              );
+            })}
           </ListGroup>
         ) : (
           <p className="text-muted">尚無歷史紀錄。</p>
